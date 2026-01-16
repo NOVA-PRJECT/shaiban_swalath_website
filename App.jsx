@@ -242,7 +242,7 @@ const App = () => {
             <p className="text-white/70 text-[9px] uppercase tracking-widest mt-0.5">SHA'BAN 1 MILLION SWALATH</p>
           </div>
           <div className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center border border-white/20">
-             <span className="text-[#D4AF37] font-bold text-[10px]">1446</span>
+             <span className="text-[#D4AF37] font-bold text-[10px]">1447</span>
           </div>
         </div>
 
