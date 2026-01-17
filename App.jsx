@@ -232,7 +232,7 @@ const App = () => {
   return (
     <div className="min-h-screen bg-[#FDFCF0]">
 <div class="fixed inset-0 w-screen h-screen z-[9999] flex items-center justify-center bg-black/50">
-  <p>Centered text</p>
+  <p class="text-white">Centered text</p>
 </div>
       {/* Header Section */}
       <header className="relative z-30 bg-[#064E3B] pt-2 pb-4 px-6 rounded-b-[40px] shadow-2xl border-b-4 border-[#D4AF37]">
