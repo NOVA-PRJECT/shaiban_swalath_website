@@ -332,7 +332,14 @@ const App = () => {
                     ) : (
                       <>
                         <p className="text-xl font-black text-[#064E3B]">{entry.count}</p>
-                        <p className="text-[9px] text-gray-400">{new Date(entry.created_at).toLocaleDateString('ml-IN')}</p>
+                        <p className="text-[9px] text-gray-400">{new Date(entry.created_at).toLocaleString('en-IN', {
+  day: '2-digit',
+  month: 'short',
+  hour: '2-digit',
+  minute: '2-digit',
+  hour12: true
+})}
+</p>
                       </>
                     )}
                   </div>
