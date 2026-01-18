@@ -27,7 +27,7 @@ const App = () => {
   const GOAL = 1000000;
 
   // --- COUNTDOWN CONFIGURATION ---
-  const START_DATE = new Date('2026-01-21T00:00:00');
+  const START_DATE = new Date('2026-01-18T00:00:00');
   const [isCampaignStarted, setIsCampaignStarted] = useState(new Date() >= START_DATE);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
 
@@ -158,56 +158,102 @@ const App = () => {
   };
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    if (!nameInput || !phoneInput || isLoggingIn) return;
-    setIsLoggingIn(true);
-    playSound('click');
-    try {
-      const { data: existingUser } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('phone', phoneInput)
-        .single();
-      if (existingUser) {
-        localStorage.setItem('swalath_user_phone', existingUser.phone);
-        localStorage.setItem('swalath_user_name', existingUser.full_name);
-        setUserProfile(existingUser);
-      } else {
-        const { error: insertError } = await supabase
-          .from('profiles')
-          .insert({ phone: phoneInput, full_name: nameInput });
-        if (insertError) throw insertError;
-        localStorage.setItem('swalath_user_phone', phoneInput);
-        localStorage.setItem('swalath_user_name', nameInput);
-        setUserProfile({ phone: phoneInput, full_name: nameInput });
-      }
+  e.preventDefault();
+  if (!nameInput || !phoneInput || isLoggingIn) return;
+  
+  setIsLoggingIn(true);
+  playSound('click');
+
+  try {
+    // 1. Try to see if user exists
+    const { data: existingUser, error: fetchError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('phone', phoneInput)
+      .single();
+
+    if (existingUser) {
+      localStorage.setItem('swalath_user_phone', existingUser.phone);
+      localStorage.setItem('swalath_user_name', existingUser.full_name);
+      setUserProfile(existingUser);
       setTimeout(() => {
         setIsLoggedIn(true);
         setIsLoggingIn(false);
       }, 100);
-    } catch (error) {
-      setIsLoggingIn(false);
-      alert("Login Error: " + error.message);
+      return;
     }
-  };
 
-  const handleSubmitSwalath = async () => {
-    if (!countInput || !userProfile || isSubmitting) return;
-    setIsSubmitting(true);
-    playSound('click');
-    const { error } = await supabase.from('swalath_entries').insert({
+    // 2. If user doesn't exist, try to create new profile
+    const { error: insertError } = await supabase
+      .from('profiles')
+      .insert({ phone: phoneInput, full_name: nameInput });
+
+    if (insertError) {
+      // Check if Supabase blocked the insert due to Jan 21 policy
+      if (insertError.code === '42501' || insertError.message.includes('row-level security')) {
+        alert("ക്ഷമിക്കണം! ക്യാമ്പയിൻ ജനുവരി 21-ന് മാത്രമേ ആരംഭിക്കുകയുള്ളൂ.");
+      } else {
+        alert("Error: " + insertError.message);
+      }
+      setIsLoggingIn(false);
+      return;
+    }
+
+    // 3. Success registration
+    localStorage.setItem('swalath_user_phone', phoneInput);
+    localStorage.setItem('swalath_user_name', nameInput);
+    setUserProfile({ phone: phoneInput, full_name: nameInput });
+    
+    setTimeout(() => {
+      setIsLoggedIn(true);
+      setIsLoggingIn(false);
+    }, 100);
+
+  } catch (error) {
+    console.error("Login catch error:", error);
+    alert("സാങ്കേതിക തകരാർ! ദയവായി പിന്നീട് ശ്രമിക്കുക.");
+    setIsLoggingIn(false);
+  }
+};
+
+const handleSubmitSwalath = async () => {
+  if (!countInput || !userProfile || isSubmitting) return;
+  setIsSubmitting(true);
+  playSound('click');
+
+  try {
+    const { data, error } = await supabase.from('swalath_entries').insert({
       user_phone: userProfile.phone,
       count: parseInt(countInput)
     });
-    if (!error) {
-      setShowConfirm(true);
-      setCountInput('');
-      playSound('success');
-      fetchUserHistory(userProfile.phone);
-      setTimeout(() => setShowConfirm(false), 2000);
+
+    // If Supabase returns an error object
+    if (error) {
+      // Specifically check for Row Level Security (RLS) violation
+      if (error.code === '42501' || error.message.includes('row-level security')) {
+        alert("ക്ഷമിക്കണം! കാമ്പയിൻ ജനുവരി 21-ന് മാത്രമേ ആരംഭിക്കുകയുള്ളൂ.");
+      } else {
+        alert("Error: " + error.message);
+      }
+      setIsSubmitting(false);
+      return;
     }
+
+    // Success Case
+    setShowConfirm(true);
+    setCountInput('');
+    playSound('success');
+    fetchUserHistory(userProfile.phone);
+    setTimeout(() => setShowConfirm(false), 2000);
+
+  } catch (err) {
+    console.error("Critical Submission Error:", err);
+    alert("സാങ്കേതിക തകരാർ! ദയവായി പിന്നീട് ശ്രമിക്കുക.");
+  } finally {
     setIsSubmitting(false);
-  };
+  }
+};
+
 
   const handleUpdateEntry = async () => {
     if (!editingId || !userProfile) return;
