@@ -24,7 +24,7 @@ const App = () => {
   const [editingId, setEditingId] = useState(null);
   const [editValue, setEditValue] = useState('');
 
-  const GOAL = 1000000;
+  const GOAL = 2000000;
 
   // --- COUNTDOWN CONFIGURATION ---
   const START_DATE = new Date('2026-01-21T19:00:00');
