@@ -27,7 +27,7 @@ const App = () => {
   const GOAL = 1000000;
 
   // --- COUNTDOWN CONFIGURATION ---
-  const START_DATE = new Date('2026-01-18T00:00:00');
+  const START_DATE = new Date('2026-01-21T19:00:00');
   const [isCampaignStarted, setIsCampaignStarted] = useState(new Date() >= START_DATE);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
 
@@ -159,13 +159,19 @@ const App = () => {
 
   const handleLogin = async (e) => {
   e.preventDefault();
+  
+  // Restriction: Check if phone number is exactly 10 digits
+  if (phoneInput.length !== 10) {
+    alert("ദയവായി 10 അക്കമുള്ള മൊബൈൽ നമ്പർ നൽകുക.");
+    return;
+  }
+
   if (!nameInput || !phoneInput || isLoggingIn) return;
   
   setIsLoggingIn(true);
   playSound('click');
 
   try {
-    // 1. Try to see if user exists
     const { data: existingUser, error: fetchError } = await supabase
       .from('profiles')
       .select('*')
@@ -183,23 +189,21 @@ const App = () => {
       return;
     }
 
-    // 2. If user doesn't exist, try to create new profile
     const { error: insertError } = await supabase
       .from('profiles')
       .insert({ phone: phoneInput, full_name: nameInput });
 
     if (insertError) {
-      // Check if Supabase blocked the insert due to Jan 21 policy
+      // Catching the RLS Policy Error (42501)
       if (insertError.code === '42501' || insertError.message.includes('row-level security')) {
         alert("ക്ഷമിക്കണം! ക്യാമ്പയിൻ ജനുവരി 21-ന് മാത്രമേ ആരംഭിക്കുകയുള്ളൂ.");
       } else {
-        alert("Error: " + insertError.message);
+        alert("പിശക്: " + insertError.message);
       }
       setIsLoggingIn(false);
       return;
     }
 
-    // 3. Success registration
     localStorage.setItem('swalath_user_phone', phoneInput);
     localStorage.setItem('swalath_user_name', nameInput);
     setUserProfile({ phone: phoneInput, full_name: nameInput });
@@ -210,8 +214,7 @@ const App = () => {
     }, 100);
 
   } catch (error) {
-    console.error("Login catch error:", error);
-    alert("സാങ്കേതിക തകരാർ! ദയവായി പിന്നീട് ശ്രമിക്കുക.");
+    alert("സാങ്കേതിക തകരാർ!");
     setIsLoggingIn(false);
   }
 };
