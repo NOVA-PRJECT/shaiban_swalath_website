@@ -231,9 +231,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-[#FDFCF0]">
-<div class="fixed inset-0 w-screen h-screen z-[9999] flex items-center justify-center bg-black/50">
-  <p class="text-white text-center">ശഅ്ബാൻ 1 ന്<br/>Jan 20/21<br/>ആരംഭിക്കുന്നു</p>
-</div>
+
       {/* Header Section */}
       <header className="relative z-30 bg-[#064E3B] pt-2 pb-4 px-6 rounded-b-[40px] shadow-2xl border-b-4 border-[#D4AF37]">
         <div className="relative z-10 flex justify-between items-center max-w-md mx-auto mb-4">
