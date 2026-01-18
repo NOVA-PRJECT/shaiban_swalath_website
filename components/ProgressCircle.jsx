@@ -76,7 +76,7 @@ const ProgressCircle = ({ current, goal }) => {
   {/* 3. The Goal (Bottom) */}
   <div className="h-[1px] w-6 bg-white/20 my-1"></div>
   <span className="text-[7px] text-white/40 font-medium">
-    ലക്ഷ്യം: 10 ലക്ഷം
+    ലക്ഷ്യം: 20 ലക്ഷം
   </span>
 </div>
 
