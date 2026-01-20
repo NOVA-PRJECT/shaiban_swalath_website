@@ -27,7 +27,7 @@ const App = () => {
   const GOAL = 2000000;
 
   // --- COUNTDOWN CONFIGURATION ---
-  const START_DATE = new Date('2026-01-20T19:00:00');
+  const START_DATE = new Date('2026-01-20T18:00:00');
   const [isCampaignStarted, setIsCampaignStarted] = useState(new Date() >= START_DATE);
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, mins: 0, secs: 0 });
 
